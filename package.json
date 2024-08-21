@@ -1,0 +1,47 @@
+{
+  "name": "traffic-logger",
+  "version": "1.1.6",
+  "description": "A Node.js package with Express, Socket.io, and traffic logging middleware.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "ts-node-dev  --env-file=.env ./src/app.ts",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migration:create": "npm run typeorm migration:create ./src/db/migrations",
+    "migration:run": "npm run typeorm -- migration:run -d ./src/db/ormconfig.ts",
+    "migration:revert": "npm run typeorm --  migration:revert -d ./src/db/ormconfig.ts"
+  },
+  "keywords": [
+    "nodejs"
+  ],
+  "author": "Flávio Filho",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie": "^0.6.0",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.12",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie": "^0.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-list-endpoints": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0",
+    "reflect-metadata": "^0.2.2",
+    "socket.io": "^4.7.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "typeorm": "^0.3.20"
+  }
+}
