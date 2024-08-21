@@ -99,11 +99,11 @@ export class RoomService {
     ownerIp: string
   ): Promise<void> {
     const room = await this.roomRepository.findOne({
-      where: { id: roomId, owner_ip: ownerIp },
+      where: { id: roomId },
       relations: ["users"],
     });
 
-    if (!room) throw new Error(`Room not found or you are not the owner`);
+    if (!room) throw new Error(`This room with id ${roomId} not found.`);
 
     room.users = room.users.filter((user) => user.ip_address !== ownerIp);
 
@@ -113,6 +113,7 @@ export class RoomService {
       await this.roomRepository.softDelete(room.id);
       return;
     }
+
     await this.roomRepository.save(room);
   }
 

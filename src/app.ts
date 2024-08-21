@@ -4,7 +4,7 @@ import http from "http";
 import "reflect-metadata";
 import swaggerUi from "swagger-ui-express";
 import generateSwaggerSpec from "./config/swagger";
-import { AppDataSource } from "./db/ormconfig";
+import { initializeDatabase } from "./db/ormconfig";
 import { startChatHandler } from "./handlers/ChatHandler";
 import { startGameHandler } from "./handlers/GameHandler";
 import { startRoomHandler } from "./handlers/RoomsHandler";
@@ -16,7 +16,7 @@ import router from "./routes/router";
 import { SocketService } from "./services/SocketService";
 
 const initializeApp = async () => {
-  AppDataSource.initialize();
+  initializeDatabase();
 
   const app = express();
   const server = http.createServer(app);

@@ -45,6 +45,15 @@ export class RoomController {
     if (!client) return res.status(404).json({ message: "User not found" });
 
     await this.roomService.removeOwnerAndHandleRoom(roomId, req.userIp);
+
+    // reset user for next room
+    await this.userService.updateUserFields(client.id, {
+      money: 500.0,
+      position: 0,
+      numberOfEqualDices: 0,
+      player_state: true,
+    });
+
     this.roomsHandler.getRooms();
     return res.json({ message: "You left the room successfully" });
   }

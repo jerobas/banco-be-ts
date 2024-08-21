@@ -26,7 +26,7 @@ export class User {
   @Column({ type: "varchar", length: 255, nullable: false })
   ip_address!: string;
 
-  @Column({ type: "numeric", precision: 10, scale: 2, default: 500.0 })
+  @Column({ type: "numeric", precision: 10, default: 500.0 })
   money!: number;
 
   @Column({ type: "int", default: 0 })

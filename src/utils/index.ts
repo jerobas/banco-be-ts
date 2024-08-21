@@ -76,7 +76,8 @@ export const handleMove = (
       position: (dices[0] + dices[1] + room.current_user_turn!.position) % 40,
       money:
         dices[0] + dices[1] + room.current_user_turn!.position >= 40
-          ? room.current_user_turn!.money + 200
+          ? (room.current_user_turn!.money =
+              Number(room.current_user_turn!.money) + 200.0)
           : room.current_user_turn!.money,
     })
   );

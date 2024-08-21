@@ -14,3 +14,24 @@ export const AppDataSource = new DataSource({
   subscribers: [],
   migrationsTableName: "migrations",
 });
+
+export const initializeDatabase = async () => {
+  try {
+    await AppDataSource.initialize();
+
+    if (process.env.ENV === "dev") {
+      const entities = AppDataSource.entityMetadatas;
+
+      for (const entity of entities) {
+        const repository = AppDataSource.getRepository(entity.name);
+        await repository.query(
+          `TRUNCATE TABLE "${entity.tableName}" RESTART IDENTITY CASCADE`
+        );
+      }
+
+      console.log("All tables have been cleared in development environment.");
+    }
+  } catch (error) {
+    console.error("Error during Data Source initialization:", error);
+  }
+};
