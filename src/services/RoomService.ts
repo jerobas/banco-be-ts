@@ -94,6 +94,28 @@ export class RoomService {
     return room;
   }
 
+  public async removeOwnerAndHandleRoom(
+    roomId: number,
+    ownerIp: string
+  ): Promise<void> {
+    const room = await this.roomRepository.findOne({
+      where: { id: roomId, owner_ip: ownerIp },
+      relations: ["users"],
+    });
+
+    if (!room) throw new Error(`Room not found or you are not the owner`);
+
+    room.users = room.users.filter((user) => user.ip_address !== ownerIp);
+
+    if (room.users.length > 0) {
+      room.owner_ip = room.users[0].ip_address;
+    } else {
+      await this.roomRepository.softDelete(room.id);
+      return;
+    }
+    await this.roomRepository.save(room);
+  }
+
   public async saveChatMessage(
     roomId: number,
     userIp: string,

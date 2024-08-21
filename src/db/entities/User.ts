@@ -38,9 +38,9 @@ export class User {
   @Column({ type: "boolean", default: true })
   player_state!: boolean; // false = jail, true = free
 
-  @ManyToOne(() => Room, (room) => room.current_user_turn, { nullable: true })
-  @JoinColumn({ name: "current_user_turn" })
-  currentRoomTurn!: Room | null;
+  // @ManyToOne(() => Room, (room) => room.current_user_turn, { nullable: true })
+  // @JoinColumn({ name: "current_user_turn" })
+  // currentRoomTurn!: Room | null;
 
   @ManyToOne(() => Room, (room) => room.users)
   @JoinColumn({ name: "room_id" })

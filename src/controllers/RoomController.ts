@@ -37,6 +37,19 @@ export class RoomController {
   }
 
   @LogErrors(true)
+  public async leaveRoom(req: Request, res: Response): Promise<any> {
+    const { roomId } = req.body;
+
+    const client = await this.userService.getUserByIp(req.userIp);
+
+    if (!client) return res.status(404).json({ message: "User not found" });
+
+    await this.roomService.removeOwnerAndHandleRoom(roomId, req.userIp);
+    this.roomsHandler.getRooms();
+    return res.json({ message: "You left the room successfully" });
+  }
+
+  @LogErrors(true)
   public async joinRoom(req: Request, res: Response): Promise<any> {
     const { id, password } = req.body;
     const client = await this.userService.getUserByIp(req.userIp);
