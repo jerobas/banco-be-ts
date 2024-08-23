@@ -46,7 +46,9 @@ export const handleMoveToJail = (_io: Server, room: Room) => {
   promise.push(
     userService.updateUserFields(room.current_user_turn!.id, {
       numberOfEqualDices: 0,
-      position: 42,
+      position:
+        Number(process.env.BOARD_SIZE) * 2 +
+        (Number(process.env.BOARD_SIZE) - 3),
       player_state: false,
     })
   );
@@ -73,9 +75,14 @@ export const handleMove = (
         dices[0] === dices[1]
           ? room.current_user_turn!.numberOfEqualDices + 1
           : 0,
-      position: (dices[0] + dices[1] + room.current_user_turn!.position) % 56,
+      position:
+        (dices[0] + dices[1] + room.current_user_turn!.position) %
+        (Number(process.env.BOARD_SIZE) * 2 +
+          (Number(process.env.BOARD_SIZE) - 2) * 2),
       money:
-        dices[0] + dices[1] + room.current_user_turn!.position >= 56
+        dices[0] + dices[1] + room.current_user_turn!.position >=
+        Number(process.env.BOARD_SIZE) * 2 +
+          (Number(process.env.BOARD_SIZE) - 2) * 2
           ? (room.current_user_turn!.money =
               Number(room.current_user_turn!.money) + 200.0)
           : room.current_user_turn!.money,

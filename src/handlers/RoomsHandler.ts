@@ -63,9 +63,11 @@ export const roomHandler = {
       chatHandler.systemMessage(room.id, `${user?.name} is a cheater!`);
     }
 
-    return _io
-      .to(room.id.toString())
-      .emit("setup", { room: room, owner: user });
+    return _io.to(room.id.toString()).emit("setup", {
+      room: room,
+      owner: user,
+      board_size: Number(process.env.BOARD_SIZE)
+    });
   },
 };
 
