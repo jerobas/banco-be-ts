@@ -1,4 +1,9 @@
 import { DataSource } from "typeorm";
+import { cardsData } from "../constants/index";
+import { Card } from "./entities/Card";
+
+const boardSize =
+  Number(process.env.BOARD_SIZE) * 2 + (Number(process.env.BOARD_SIZE) - 2) * 2;
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -18,7 +23,6 @@ export const AppDataSource = new DataSource({
 export const initializeDatabase = async () => {
   try {
     await AppDataSource.initialize();
-
     if (process.env.ENV === "dev") {
       const entities = AppDataSource.entityMetadatas;
 
@@ -27,6 +31,25 @@ export const initializeDatabase = async () => {
         await repository.query(
           `TRUNCATE TABLE "${entity.tableName}" RESTART IDENTITY CASCADE`
         );
+        if (entity.name === "Card") {
+          for (let i = 0; i < boardSize; i++) {
+            const card = new Card();
+            card.name = cardsData[i].name;
+            card.description = cardsData[i].description;
+            card.is_tradable = cardsData[i].is_tradable;
+            card.illustration_url =
+              "https://avatars.githubusercontent.com/u/65620069?v=4";
+            card.type = "def";
+            card.purchase_value = 100.0;
+            card.modifiers = "def";
+            card.can_accept_modifiers = cardsData[i].is_tradable;
+            card.rarity_tier = 1;
+            card.scaling_level = 1;
+            card.quantity = 1;
+
+            await repository.save(card);
+          }
+        }
       }
 
       console.log("All tables have been cleared in development environment.");

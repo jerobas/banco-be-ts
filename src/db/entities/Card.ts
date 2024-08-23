@@ -15,7 +15,7 @@ export class Card {
   @Column({ type: "varchar", length: 255, nullable: false })
   name!: string;
 
-  @Column({ type: "text" })
+  @Column({ type: "varchar", length: 255 })
   description!: string;
 
   @Column({ type: "varchar", length: 255 })

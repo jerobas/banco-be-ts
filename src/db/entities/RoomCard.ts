@@ -29,4 +29,7 @@ export class RoomCard {
 
   @Column({ type: "boolean", default: false })
   on!: boolean;
+
+  @Column({ type: "int" })
+  position!: number;
 }

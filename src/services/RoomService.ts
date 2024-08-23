@@ -23,26 +23,58 @@ export class RoomService {
   }
 
   private async initializeRoomWithCards(roomId: number) {
+    const boardSize =
+      Number(process.env.BOARD_SIZE) * 2 +
+      (Number(process.env.BOARD_SIZE) - 2) * 2;
+
     const room = await this.roomRepository.findOneBy({ id: roomId });
     if (!room) {
       throw new Error(`Room with id ${roomId} not found.`);
     }
 
     const cards = await this.cardRepository.find();
+    const reservedPositions = new Set<number>();
+
     const roomCards = cards.map((card) => {
       const roomCard = new RoomCard();
       roomCard.room = room;
       roomCard.card = card;
       roomCard.owner = "game";
-      roomCard.on = false;
+      roomCard.on = true;
       roomCard.quantity = card.quantity;
+
+      if (card.name === "start") {
+        roomCard.position = 0;
+        reservedPositions.add(0);
+      } else if (card.name === "event") {
+        roomCard.position = boardSize - 1;
+        reservedPositions.add(boardSize - 1);
+      } else if (card.name === "vocation") {
+        roomCard.position = boardSize * (boardSize - 1);
+        reservedPositions.add(boardSize * (boardSize - 1));
+      } else if (card.name === "jail") {
+        roomCard.position = boardSize * boardSize - 1;
+        reservedPositions.add(boardSize * boardSize - 1);
+      }
+
       return roomCard;
     });
+
+    let currentPosition = 0;
+    for (const roomCard of roomCards) {
+      if (roomCard.position === undefined) {
+        while (reservedPositions.has(currentPosition)) {
+          currentPosition++;
+        }
+        roomCard.position = currentPosition;
+        reservedPositions.add(currentPosition);
+      }
+    }
+
     await this.roomCardRepository.save(roomCards);
     return;
   }
 
-  private async changeRoomState(roomId: number) {}
 
   public async updateCardOwner(
     roomId: number,
@@ -158,6 +190,7 @@ export class RoomService {
     }
     room.users = [user];
     await this.roomRepository.save(room);
+    await this.initializeRoomWithCards(room.id);
     return room;
   }
 
