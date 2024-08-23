@@ -26,10 +26,12 @@ export const gameHandler = {
       return _socket.emit("error", "This room does not exist");
     }
 
+    let [d1, d2] = handleDices();
+
     for (let player = 0; player < room?.users.length; player++) {
       order.push({
         user: room?.users[player],
-        order: handleDices(),
+        order: d1 + d2,
       });
     }
 
@@ -52,7 +54,8 @@ export const gameHandler = {
       room: updatedRoom,
     });
   },
-  rollDices: async (data: { roomId: number; dices: number[] }) => {
+  rollDices: async (data: { roomId: number }) => {
+    let dices: number[] = handleDices();
     let promises: Promise<any>[] = [];
     let room = await roomService.getRoomById(data.roomId);
 
@@ -62,13 +65,13 @@ export const gameHandler = {
       const { promises: jailPromises, nextTurn: updatedTurn } = handleJail(
         _io,
         room!,
-        data.dices,
+        dices,
         nextTurn
       );
       promises = jailPromises;
       nextTurn = updatedTurn;
     } else if (
-      data.dices[0] === data.dices[1] &&
+      dices[0] === dices[1] &&
       room!.current_user_turn!.numberOfEqualDices == 2
     ) {
       promises = handleMoveToJail(_io, room!);
@@ -76,7 +79,7 @@ export const gameHandler = {
       const { promises: movePromises, nextTurn: updatedTurn } = handleMove(
         _io,
         room!,
-        data.dices,
+        dices,
         nextTurn
       );
       promises = movePromises;

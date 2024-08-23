@@ -5,9 +5,9 @@ import { UserService } from "../services/UserService";
 const userService = new UserService();
 
 export const handleDices = () => {
-  const d1 = Math.floor(Math.random() * 6) + 1;
-  const d2 = Math.floor(Math.random() * 6) + 1;
-  return d1 + d2;
+  let d1 = Math.floor(Math.random() * 6) + 1;
+  let d2 = Math.floor(Math.random() * 6) + 1;
+  return [d1, d2];
 };
 
 export const handleJail = (
@@ -20,7 +20,7 @@ export const handleJail = (
   if (dices[0] === dices[1]) {
     promise.push(
       userService.updateUserFields(room.current_user_turn!.id, {
-        player_state: false,
+        player_state: true,
       })
     );
     _io
@@ -31,7 +31,7 @@ export const handleJail = (
   } else {
     promise.push(
       userService.updateUserFields(room.current_user_turn!.id, {
-        player_state: true,
+        player_state: false,
       })
     );
     _io
@@ -46,7 +46,7 @@ export const handleMoveToJail = (_io: Server, room: Room) => {
   promise.push(
     userService.updateUserFields(room.current_user_turn!.id, {
       numberOfEqualDices: 0,
-      position: 30,
+      position: 42,
       player_state: false,
     })
   );
@@ -73,9 +73,9 @@ export const handleMove = (
         dices[0] === dices[1]
           ? room.current_user_turn!.numberOfEqualDices + 1
           : 0,
-      position: (dices[0] + dices[1] + room.current_user_turn!.position) % 40,
+      position: (dices[0] + dices[1] + room.current_user_turn!.position) % 56,
       money:
-        dices[0] + dices[1] + room.current_user_turn!.position >= 40
+        dices[0] + dices[1] + room.current_user_turn!.position >= 56
           ? (room.current_user_turn!.money =
               Number(room.current_user_turn!.money) + 200.0)
           : room.current_user_turn!.money,
