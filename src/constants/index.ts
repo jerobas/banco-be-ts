@@ -267,6 +267,12 @@ export const cardsData = [
     is_tradable: false,
   },
   {
+    name: "Basilisk2",
+    description:
+      "A serpent king with the power to cause death with a single glance another one.",
+    is_tradable: false,
+  },
+  {
     name: "start",
     description: "start",
     is_tradable: false,
@@ -282,7 +288,7 @@ export const cardsData = [
     is_tradable: false,
   },
   {
-    name: "vocation",
+    name: "vacation",
     description: "end",
     is_tradable: false,
   },

@@ -23,10 +23,6 @@ export class RoomService {
   }
 
   private async initializeRoomWithCards(roomId: number) {
-    const boardSize =
-      Number(process.env.BOARD_SIZE) * 2 +
-      (Number(process.env.BOARD_SIZE) - 2) * 2;
-
     const room = await this.roomRepository.findOneBy({ id: roomId });
     if (!room) {
       throw new Error(`Room with id ${roomId} not found.`);
@@ -42,19 +38,30 @@ export class RoomService {
       roomCard.owner = "game";
       roomCard.on = true;
       roomCard.quantity = card.quantity;
-
       if (card.name === "start") {
-        roomCard.position = 0;
-        reservedPositions.add(0);
+        roomCard.position = 1;
+        reservedPositions.add(1);
       } else if (card.name === "event") {
-        roomCard.position = boardSize - 1;
-        reservedPositions.add(boardSize - 1);
-      } else if (card.name === "vocation") {
-        roomCard.position = boardSize * (boardSize - 1);
-        reservedPositions.add(boardSize * (boardSize - 1));
+        roomCard.position = Number(process.env.BOARD_SIZE);
+        reservedPositions.add(Number(process.env.BOARD_SIZE));
+      } else if (card.name === "vacation") {
+        roomCard.position =
+          Number(process.env.BOARD_SIZE) + Number(process.env.BOARD_SIZE) - 1;
+        reservedPositions.add(
+          Number(process.env.BOARD_SIZE) + Number(process.env.BOARD_SIZE) - 1
+        );
       } else if (card.name === "jail") {
-        roomCard.position = boardSize * boardSize - 1;
-        reservedPositions.add(boardSize * boardSize - 1);
+        roomCard.position =
+          Number(process.env.BOARD_SIZE) +
+          Number(process.env.BOARD_SIZE) +
+          Number(process.env.BOARD_SIZE) -
+          2;
+        reservedPositions.add(
+          Number(process.env.BOARD_SIZE) +
+            Number(process.env.BOARD_SIZE) +
+            Number(process.env.BOARD_SIZE) -
+            2
+        );
       }
 
       return roomCard;
@@ -74,7 +81,6 @@ export class RoomService {
     await this.roomCardRepository.save(roomCards);
     return;
   }
-
 
   public async updateCardOwner(
     roomId: number,

@@ -32,7 +32,7 @@ export const initializeDatabase = async () => {
           `TRUNCATE TABLE "${entity.tableName}" RESTART IDENTITY CASCADE`
         );
         if (entity.name === "Card") {
-          for (let i = 0; i < boardSize; i++) {
+          for (let i = 0; i <= boardSize; i++) {
             const card = new Card();
             card.name = cardsData[i].name;
             card.description = cardsData[i].description;
