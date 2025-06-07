@@ -7,13 +7,16 @@ const boardSize =
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: process.env.DB_HOSST || "localhost",
+  host: process.env.DB_HOST_NEO || "localhost",
   port: 5432,
-  username: process.env.DB_USERNAME || "admin",
-  password: process.env.DB_PASSWORD || "admin",
-  database: process.env.DB_DATABASE || "admin",
+  username: process.env.DB_USERNAME_NEO || "admin",
+  password: process.env.DB_PASSWORD_NEO || "admin",
+  database: process.env.DB_DATABASE_NEO || "admin",
   synchronize: process.env.ENV == "dev" ? true : false,
   logging: false,
+  ssl: {
+    rejectUnauthorized: false,
+  },
   entities: [__dirname + "/entities/*.{ts,js}"],
   migrations: [__dirname + "/migrations/*.{ts,js}"],
   subscribers: [],

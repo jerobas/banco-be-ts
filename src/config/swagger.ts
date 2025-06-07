@@ -10,7 +10,17 @@ const generateSwaggerSpec = (app: express.Application | Router) => {
     acc[path] = methods.reduce((methodAcc: any, method: string) => {
       methodAcc[method.toLowerCase()] = {
         tags: [path.split("/")[1] || "default"],
-        summary: `${method} ${path}`
+        summary: `${method} ${path}`,
+      };
+
+      methodAcc[method.toLowerCase()] = {
+        tags: [path.split("/")[1] || "default"],
+        summary: `${method} ${path}`,
+        responses: {
+          200: {
+            description: "Successful response",
+          },
+        },
       };
 
       if (["post", "put", "patch"].includes(method.toLowerCase())) {
