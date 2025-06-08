@@ -7,6 +7,7 @@ import {
 } from "typeorm";
 import { Room } from "./Room";
 import { Card } from "./Card";
+import { User } from "./User";
 
 @Entity()
 export class RoomCard {
@@ -21,8 +22,9 @@ export class RoomCard {
   @JoinColumn({ name: "card_id" })
   card!: Card;
 
-  @Column({ type: "varchar", length: 255 })
-  owner!: string;
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: "owner_id" })
+  owner!: User | null;
 
   @Column({ type: "int" })
   quantity!: number;

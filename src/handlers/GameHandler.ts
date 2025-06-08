@@ -1,6 +1,8 @@
 import { Server, Socket } from "socket.io";
 import { RoomService } from "../services/RoomService";
 import { UserService } from "../services/UserService";
+import { CardService } from "../services/CardService";
+
 import {
   handleJail,
   handleMove,
@@ -10,6 +12,7 @@ import {
 
 const roomService = new RoomService();
 const userService = new UserService();
+const cardService = new CardService();
 
 let _socket: Socket;
 let _io: Server;
@@ -49,15 +52,34 @@ export const gameHandler = {
     let updatedRoom = await roomService.updateRoom(room.id, room);
 
     return _io.to(room.id.toString()).emit("gameStateUpdated", {
-      diceWinners: updatedRoom.sequence,
-      type: updatedRoom.game_state,
+      diceWinners: updatedRoom!.sequence,
+      type: updatedRoom!.game_state,
       room: updatedRoom,
     });
+  },
+  buy: async (roomId: number) => {
+    let room = await roomService.getRoomById(roomId);
+    let user = await userService.getUserByIp(_socket.handshake.address);
+
+    if (!room) {
+      return _socket.emit("error", "This room does not exist");
+    }
+
+    if (user?.ip_address !== room?.current_user_turn?.ip_address)
+      return _socket.emit("error", "This is not your turn");
+
+    user = await cardService.buyCard(roomId, user!);
+
+    _io.to(roomId.toString()).emit("buyResponse", { user });
   },
   rollDices: async (data: { roomId: number }) => {
     let dices: number[] = handleDices();
     let promises: Promise<any>[] = [];
     let room = await roomService.getRoomById(data.roomId);
+    let user = await userService.getUserByIp(_socket.handshake.address);
+
+    if (user?.ip_address !== room?.current_user_turn?.ip_address)
+      return _socket.emit("error", "This is not your turn");
 
     let nextTurn = room!.turn + 1;
 
@@ -91,13 +113,13 @@ export const gameHandler = {
       nextTurn = 0;
     }
 
+    room!.turn = nextTurn;
+    room = await roomService.updateRoom(room!.id, room!);
+
     _io.to(data.roomId.toString()).emit("playersStates", {
       users: room?.users,
       currentTurn: room?.current_user_turn,
     });
-
-    room!.turn = nextTurn;
-    await roomService.updateRoom(room!.id, room!);
   },
 };
 

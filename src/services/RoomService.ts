@@ -35,7 +35,7 @@ export class RoomService {
       const roomCard = new RoomCard();
       roomCard.room = room;
       roomCard.card = card;
-      roomCard.owner = "game";
+      roomCard.owner = null;
       roomCard.on = true;
       roomCard.quantity = card.quantity;
       if (card.name === "start") {
@@ -118,7 +118,7 @@ export class RoomService {
   public async updateRoom(roomId: number, updateData: Partial<Room>) {
     let room = await this.roomRepository.findOne({
       where: { id: roomId },
-      relations: ["users"],
+      relations: ["users", "current_user_turn"],
     });
 
     if (!room) {
@@ -129,7 +129,7 @@ export class RoomService {
 
     await this.roomRepository.save(room);
 
-    return room;
+    return this.getRoomById(roomId);
   }
 
   public async removeOwnerAndHandleRoom(

@@ -16,7 +16,7 @@ import router from "./routes/router";
 import { SocketService } from "./services/SocketService";
 
 const initializeApp = async () => {
-  initializeDatabase();
+  await initializeDatabase();
 
   const app = express();
   const server = http.createServer(app);
