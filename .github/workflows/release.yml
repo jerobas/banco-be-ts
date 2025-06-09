@@ -47,9 +47,13 @@ jobs:
               npm install
 
               # executa docker compose
-              docker-compose up -d
+              if ! docker ps -a --filter "name=postgres_db" --format '{{.Names}}' | grep -q "^postgres_db$"; then
+                echo "Container 'postgres_db' não encontrado. Rodando docker-compose up..."
+                docker-compose up -d
+              else
+                echo "Container 'postgres_db' já existe. Pulando docker-compose up."
+              fi
 
-              /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 stop dev || true
-              /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 delete dev || true
+              /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 describe dev > /dev/null && /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 delete dev
               /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 start npm --name "dev" -- run socket
           EOF
