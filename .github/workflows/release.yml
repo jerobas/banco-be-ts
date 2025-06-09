@@ -21,10 +21,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.AWS_KEY }}
 
-      - name: Install dependencies
-        run: |
-          npm ci
-
       - name: Remove path
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "rm -rf /home/ubuntu/*"
