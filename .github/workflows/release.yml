@@ -1,0 +1,53 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy Node.js to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.AWS_KEY }}
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Remove path
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "rm -rf /home/ubuntu/*"
+
+      - name: Copy to EC2
+        run: |
+          rsync -avz --delete \
+            --exclude node_modules \
+            --rsync-path="mkdir -p /home/ubuntu/lopoly-server && rsync" \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            . ubuntu@${{ secrets.AWS_HOST }}:/home/ubuntu/lopoly-server/
+
+      - name: Run setup and deploy on EC2
+        shell: bash
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} 'bash -l' << EOF 
+              cd /home/ubuntu/lopoly-server
+              npm install
+
+              # executa docker compose
+              docker-compose up -d
+
+              /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 stop dev || true
+              /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 delete dev || true
+              /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 start npm --name "dev" -- run socket
+          EOF

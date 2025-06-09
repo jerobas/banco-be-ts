@@ -5,8 +5,8 @@ import { chatHandler } from "./ChatHandler";
 const roomService = new RoomService();
 const userService = new UserService();
 
-let _socket: Socket;
-let _io: Server;
+let _socket: Socket; //response quem perguntou
+let _io: Server; //responde geral
 
 export const roomHandler = {
   getRooms: async () => {
@@ -66,7 +66,7 @@ export const roomHandler = {
     return _io.to(room.id.toString()).emit("setup", {
       room: room,
       owner: user,
-      board_size: Number(process.env.BOARD_SIZE)
+      board_size: Number(process.env.BOARD_SIZE),
     });
   },
 };
