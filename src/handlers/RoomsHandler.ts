@@ -9,37 +9,37 @@ let _socket: Socket; //response quem perguntou
 let _io: Server; //responde geral
 
 export const roomHandler = {
-  getRooms: async () => {
+  getRooms: async (_: any, callback: Function) => {
     const rooms = await roomService.getAllRooms();
-    _socket.emit("lobby", rooms);
+    callback(rooms);
   },
-  join: async (data: { name: string; password: string }) => {
-    let room = await roomService.getRoomByName(data.name);
-    let user = await userService.getUserByIp(_socket.handshake.address);
+  // join: async (
+  //   data: { name: string; password: string },
+  //   callback: Function
+  // ) => {
+  //   let room = await roomService.getRoomByName(data.name);
+  //   let user = await userService.getUserByIp(_socket.handshake.address);
 
-    if (!user) return _socket.emit("joined", false);
+  //   if (!user && !room) callback(false);
 
-    if (!room) return _socket.emit("joined", false);
+  //   if (room!.game_state) callback(false); // if game_state is true (started)
 
-    if (room.game_state) return _socket.emit("joined", false); // if game_state is true (started)
+  //   if (room!.limit_of_users == room!.users.length) callback(false); // if limit is reached
+  //   if (room!.password !== data.password) callback(false); // if password doesn't match
 
-    if (room.limit_of_users == room.users.length)
-      return _socket.emit("joined", false); // if limit is reached
-    if (room.password !== data.password) return _socket.emit("joined", false); // if password doesn't match
+  //   // Check if the user is already in the room
+  //   const userInRoom = room!.users.find((u) => u.id === user!.id);
 
-    // Check if the user is already in the room
-    const userInRoom = room.users.find((u) => u.id === user.id);
+  //   if (userInRoom) callback(false);
 
-    if (userInRoom) return _socket.emit("joined", false);
+  //   room!.users.push(user);
+  //   await roomService.updateRoom(room!.id, room);
 
-    room.users.push(user);
-    await roomService.updateRoom(room.id, room);
+  //   _socket.join(room.id.toString());
+  //   _socket.emit("joined", true);
 
-    _socket.join(room.id.toString());
-    _socket.emit("joined", true);
-
-    await roomHandler.getRooms();
-  },
+  //   await roomHandler.getRooms();
+  // },
   updateUserInGameIfReload: async (id: number) => {
     const room = await roomService.getRoomById(id);
     if (!room) return _socket.emit("error", "This room does not exist");
@@ -51,7 +51,7 @@ export const roomHandler = {
     });
     return;
   },
-  setup: async (id: number) => {
+  setup: async (id: number, callback: Function) => {
     const room = await roomService.getRoomById(id);
     const user = await userService.getUserByIp(_socket.handshake.address);
 
@@ -63,11 +63,16 @@ export const roomHandler = {
       chatHandler.systemMessage(room.id, `${user?.name} is a cheater!`);
     }
 
-    return _io.to(room.id.toString()).emit("setup", {
+    return callback({
       room: room,
       owner: user,
       board_size: Number(process.env.BOARD_SIZE),
     });
+    // return _io.to(room.id.toString()).emit("setup", {
+    //   room: room,
+    //   owner: user,
+    //   board_size: Number(process.env.BOARD_SIZE),
+    // });
   },
 };
 
