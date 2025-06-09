@@ -49,7 +49,10 @@ const generateSwaggerSpec = (app: express.Application | Router) => {
     },
     servers: [
       {
-        url: `http://localhost:${process.env.PORT || 3333}`,
+        url:
+          process.env.ENV == "dev"
+            ? `http://localhost:${process.env.PORT || 3333}`
+            : `${process.env.AWS_HOST}:${process.env.PORT || 3333}`,
       },
     ],
     paths,

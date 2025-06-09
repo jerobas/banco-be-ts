@@ -33,6 +33,12 @@ jobs:
             -e "ssh -o StrictHostKeyChecking=no" \
             . ubuntu@${{ secrets.AWS_HOST }}:/home/ubuntu/lopoly-server/
 
+      - name: Link persistent .env
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "
+            ln -sf /home/ubuntu/envs/.env.ls /home/ubuntu/lopoly-server/.env
+          "
+
       - name: Run setup and deploy on EC2
         shell: bash
         run: |

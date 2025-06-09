@@ -11,7 +11,6 @@ import { startRoomHandler } from "./handlers/RoomsHandler";
 import { socketHandler } from "./handlers/SocketHandler";
 import socketMiddleware from "./middleware/socket";
 import timeoutMiddleware from "./middleware/timeout";
-import validateRefere from "./middleware/validateReferer";
 import router from "./routes/router";
 import { SocketService } from "./services/SocketService";
 
@@ -35,7 +34,6 @@ const initializeApp = async () => {
 
   app.use(cors());
   app.use(express.json());
-  app.use(validateRefere);
   app.use(timeoutMiddleware(8000));
   app.use(socketMiddleware(io));
 
@@ -46,10 +44,18 @@ const initializeApp = async () => {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   const PORT = process.env.PORT || 3333;
-  server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-    console.log(`Swagger is running on http://localhost:${PORT}/api-docs`);
-  });
+  if (process.env.DEV == "dev")
+    server.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`Swagger is running on http://localhost:${PORT}/api-docs`);
+    });
+  else
+    server.listen(PORT, () => {
+      console.log(`Server is running on ${process.env.AWS_HOST}:${PORT}`);
+      console.log(
+        `Swagger is running on ${process.env.AWS_HOST}:${PORT}/api-docs`
+      );
+    });
 };
 
 initializeApp().catch((error) => {
