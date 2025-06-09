@@ -23,7 +23,7 @@ jobs:
 
       - name: Remove path
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "rm -rf /home/ubuntu/*"
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "rm -rf /home/ubuntu/lopoly-server"
 
       - name: Copy to EC2
         run: |
