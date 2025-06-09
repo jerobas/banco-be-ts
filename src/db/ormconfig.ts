@@ -26,7 +26,7 @@ export const AppDataSource = new DataSource({
 export const initializeDatabase = async () => {
   try {
     await AppDataSource.initialize();
-    if (process.env.ENV === "dev") {
+    if (process.env.ENV === "dev" || process.env.ENV === "qa") {
       const entities = AppDataSource.entityMetadatas;
 
       for (const entity of entities) {
