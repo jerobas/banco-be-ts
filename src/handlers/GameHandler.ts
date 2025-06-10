@@ -20,8 +20,8 @@ let _io: Server;
 async function updateTurn(roomId: number) {}
 
 export const gameHandler = {
-  start: async (roomId: number) => {
-    let room = await roomService.getRoomById(roomId);
+  start: async (data: {roomId: number}, callback: Function) => {
+    let room = await roomService.getRoomById(data.roomId);
 
     const order = [];
 
@@ -51,13 +51,13 @@ export const gameHandler = {
 
     let updatedRoom = await roomService.updateRoom(room.id, room);
 
-    return _io.to(room.id.toString()).emit("gameStateUpdated", {
+    return callback({
       diceWinners: updatedRoom!.sequence,
       type: updatedRoom!.game_state,
       room: updatedRoom,
     });
   },
-  buy: async (roomId: number) => {
+  buy: async (roomId: number, callback: Function) => {
     let room = await roomService.getRoomById(roomId);
     let user = await userService.getUserByIp(_socket.handshake.address);
 
@@ -70,9 +70,9 @@ export const gameHandler = {
 
     user = await cardService.buyCard(roomId, user!);
 
-    _io.to(roomId.toString()).emit("buyResponse", { user });
+    return callback(user);
   },
-  rollDices: async (data: { roomId: number }) => {
+  rollDices: async (data: { roomId: number }, callback: Function) => {
     let dices: number[] = handleDices();
     let promises: Promise<any>[] = [];
     let room = await roomService.getRoomById(data.roomId);
@@ -116,7 +116,7 @@ export const gameHandler = {
     room!.turn = nextTurn;
     room = await roomService.updateRoom(room!.id, room!);
 
-    _io.to(data.roomId.toString()).emit("playersStates", {
+    return callback({
       users: room?.users,
       currentTurn: room?.current_user_turn,
     });
@@ -127,7 +127,9 @@ export const startGameHandler = async (socket: Socket, io: Server) => {
   _socket = socket;
   _io = io;
 
-  Object.keys(gameHandler).forEach((handler) => {
-    socket.on(`game:${handler}`, (gameHandler as any)[handler]);
+  Object.entries(gameHandler).forEach(([eventName, handlerFn]) => {
+    socket.on(`game:${eventName}`, (data: any, callback: Function) => {
+      handlerFn(data, callback);
+    });
   });
 };

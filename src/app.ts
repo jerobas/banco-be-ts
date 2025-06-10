@@ -26,7 +26,7 @@ const initializeApp = async () => {
   io.on("connection", async (socket) => {
     await Promise.all([
       socketHandler(socket),
-      startRoomHandler(socket, io),
+      startRoomHandler(socket),
       startChatHandler(socket, io),
       startGameHandler(socket, io),
     ]);

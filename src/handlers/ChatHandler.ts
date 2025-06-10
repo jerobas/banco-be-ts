@@ -6,18 +6,24 @@ let _socket: Socket;
 let _io: Server;
 
 export const chatHandler = {
-  chat: async (roomId: number, message: string) => {
+  chat: async (
+    data: { roomId: number; message: string },
+    callback: Function
+  ) => {
     const chatMessage = await roomService.saveChatMessage(
-      roomId,
+      data.roomId,
       _socket.handshake.address,
-      message
+      data.message
     );
-    _io.to(roomId.toString()).emit("receiveMessage", chatMessage, false);
+    return callback({ chatMessage, system: false });
   },
-  systemMessage: async (roomId: number, message: string) => {
+  systemMessage: async (
+    data: { roomId: number; message: string },
+    callback?: Function
+  ) => {
     _io
-      .to(roomId.toString())
-      .emit("receiveMessageSystem", { message: message, system: true });
+      .to(data.roomId.toString())
+      .emit("receiveMessageSystem", { message: data.message, system: true });
   },
 };
 
@@ -25,7 +31,9 @@ export const startChatHandler = async (socket: Socket, io: Server) => {
   _socket = socket;
   _io = io;
 
-  Object.keys(chatHandler).forEach((handler) => {
-    socket.on(`room:${handler}`, (chatHandler as any)[handler]);
+  Object.entries(chatHandler).forEach(([eventName, handlerFn]) => {
+    socket.on(`room:${eventName}`, (data: any, callback: Function) => {
+      handlerFn(data, callback);
+    });
   });
 };
