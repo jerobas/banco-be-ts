@@ -13,7 +13,8 @@
     "migration:revert": "npm run typeorm --  migration:revert -d ./src/db/ormconfig.ts",
     "build": "tsc",
     "lint": "eslint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "start": "node --env-file=.env dist/app.js"
   },
   "keywords": [
     "nodejs"

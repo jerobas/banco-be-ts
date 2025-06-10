@@ -54,6 +54,8 @@ jobs:
                 echo "Container 'postgres_db' já existe. Pulando docker-compose up."
               fi
 
+              npm run build
+
               /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 describe dev > /dev/null && /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 delete dev
-              /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 start npm --name lopoly -- run dev
+              /home/ubuntu/.nvm/versions/node/v20.18.0/bin/pm2 start npm --name lopoly -- run start
           EOF
