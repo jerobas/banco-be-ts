@@ -63,7 +63,7 @@ export class RoomController {
     const { id, password } = req.body;
     const client = await this.userService.getUserByIp(req.userIp);
     if (!client) return res.status(404).json({ message: "And your name is?" });
-    let room = await this.roomService.addUserToRoom(
+    const room = await this.roomService.addUserToRoom(
       id,
       password,
       client,

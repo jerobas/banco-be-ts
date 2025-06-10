@@ -5,8 +5,8 @@ import { UserService } from "../services/UserService";
 const userService = new UserService();
 
 export const handleDices = () => {
-  let d1 = Math.floor(Math.random() * 6) + 1;
-  let d2 = Math.floor(Math.random() * 6) + 1;
+  const d1 = Math.floor(Math.random() * 6) + 1;
+  const d2 = Math.floor(Math.random() * 6) + 1;
   return [d1, d2];
 };
 
@@ -42,7 +42,7 @@ export const handleJail = (
 };
 
 export const handleMoveToJail = (_io: Server, room: Room) => {
-  let promise = [];
+  const promise = [];
   promise.push(
     userService.updateUserFields(room.current_user_turn!.id, {
       numberOfEqualDices: 0,
@@ -65,7 +65,7 @@ export const handleMove = (
   dices: number[],
   nextTurn: number
 ) => {
-  let promise = [];
+  const promise = [];
   if (dices[0] === dices[1]) {
     nextTurn = room.turn;
   }

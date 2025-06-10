@@ -8,6 +8,7 @@ export class SocketService {
     this.io = new Server(server, {
       cors: {
         origin: "*",
+        credentials: true,
       },
     });
   }

@@ -3,6 +3,8 @@ import express from "express";
 import http from "http";
 import "reflect-metadata";
 import swaggerUi from "swagger-ui-express";
+import cookieParser from "cookie-parser";
+
 import generateSwaggerSpec from "./config/swagger";
 import { initializeDatabase } from "./db/ormconfig";
 import { startChatHandler } from "./handlers/ChatHandler";
@@ -22,6 +24,7 @@ const initializeApp = async () => {
   const socketService = new SocketService(server);
 
   const io = socketService.getIO();
+  app.set("trust proxy", true);
 
   io.on("connection", async (socket) => {
     await Promise.all([
@@ -32,7 +35,13 @@ const initializeApp = async () => {
     ]);
   });
 
-  app.use(cors());
+  app.use(
+    cors({
+      origin: "*",
+      credentials: true,
+    })
+  );
+  app.use(cookieParser());
   app.use(express.json());
   app.use(timeoutMiddleware(8000));
   app.use(socketMiddleware(io));
@@ -44,7 +53,7 @@ const initializeApp = async () => {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   const PORT = process.env.PORT || 3333;
-  if (process.env.DEV == "dev")
+  if (process.env.ENV == "dev")
     server.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
       console.log(`Swagger is running on http://localhost:${PORT}/api-docs`);

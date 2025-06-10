@@ -185,7 +185,7 @@ export class RoomService {
 
   public async createRoom(name: string, password: string, user: User) {
     await this.deleteByOwnerIp(user.ip_address);
-    let room = await this.roomRepository.save({
+    const room = await this.roomRepository.save({
       name: name,
       password: password,
       owner_ip: user.ip_address,
@@ -211,7 +211,7 @@ export class RoomService {
     user: User,
     socket: Socket
   ) {
-    let room = await this.roomRepository.findOne({
+    const room = await this.roomRepository.findOne({
       where: { id: id },
       relations: ["users"],
     });
@@ -242,8 +242,8 @@ export class RoomService {
     userIp: string,
     socket: Socket
   ) {
-    let room = await this.roomRepository.findOneBy({ id: roomId });
-    let user = await this.userRepository.findOneBy({ ip_address: userIp });
+    const room = await this.roomRepository.findOneBy({ id: roomId });
+    const user = await this.userRepository.findOneBy({ ip_address: userIp });
 
     if (!room) {
       throw new Error(`Room with id ${roomId} not found.`);

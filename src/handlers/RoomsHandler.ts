@@ -16,8 +16,8 @@ export const roomHandler = {
     data: { name: string; password: string },
     callback: Function
   ) => {
-    let room = await roomService.getRoomByName(data.name);
-    let user = await userService.getUserByIp(_socket.handshake.address);
+    const room = await roomService.getRoomByName(data.name);
+    const user = await userService.getUserByIp(_socket.handshake.address);
 
     if (!user || !room) return callback(false);
 
@@ -52,7 +52,14 @@ export const roomHandler = {
         });
       }
     });
-    return;
+    const user = await userService.getUserByIp(room.owner_ip);
+    if (callback)
+      callback({
+        room,
+        board_size: Number(process.env.BOARD_SIZE),
+        owner: user,
+      });
+    else return;
   },
   setup: async (data: { id: number }, callback: Function) => {
     const room = await roomService.getRoomById(data.id);
@@ -82,7 +89,6 @@ export const startRoomHandler = async (socket: Socket) => {
 
   Object.entries(roomHandler).forEach(([eventName, handlerFn]) => {
     socket.on(`rooms:${eventName}`, (data: any, callback: Function) => {
-      console.log(data, callback);
       handlerFn(data, callback);
     });
   });

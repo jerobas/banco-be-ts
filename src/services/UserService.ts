@@ -33,13 +33,17 @@ export class UserService {
     return await this.repository.findOneBy({ ip_address: userIp });
   }
 
+  public async getUserByToken(token: string): Promise<User | null> {
+    return await this.repository.findOneBy({ user_token: token });
+  }
+
   public async getAllUsers(): Promise<User[]> {
     return await this.repository.find();
   }
 
   public async getUserById(id: number): Promise<User | undefined> {
     const user = await this.repository.findOne({
-      where: {id: id},
+      where: { id: id },
       relations: ["room"],
     });
     if (!user) {
@@ -55,17 +59,19 @@ export class UserService {
   public async createUser(
     name: string,
     socket_id: string,
-    userIp: string
+    userIp: string,
+    userToken: string
   ): Promise<User> {
     let createdUser = await this.repository.findOneBy({ ip_address: userIp });
     if (createdUser) {
-      throw new Error(`User with userIp ${userIp} already exists.`);
+      await this.repository.remove(createdUser);
     }
 
     createdUser = await this.repository.save({
       name,
       socket_id,
       ip_address: userIp,
+      user_token: userToken,
     });
 
     if (!createdUser) {

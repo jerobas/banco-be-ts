@@ -21,7 +21,7 @@ async function updateTurn(roomId: number) {}
 
 export const gameHandler = {
   start: async (data: {roomId: number}, callback: Function) => {
-    let room = await roomService.getRoomById(data.roomId);
+    const room = await roomService.getRoomById(data.roomId);
 
     const order = [];
 
@@ -29,7 +29,7 @@ export const gameHandler = {
       return _socket.emit("error", "This room does not exist");
     }
 
-    let [d1, d2] = handleDices();
+    const [d1, d2] = handleDices();
 
     for (let player = 0; player < room?.users.length; player++) {
       order.push({
@@ -49,7 +49,7 @@ export const gameHandler = {
 
     room.game_state = true;
 
-    let updatedRoom = await roomService.updateRoom(room.id, room);
+    const updatedRoom = await roomService.updateRoom(room.id, room);
 
     return callback({
       diceWinners: updatedRoom!.sequence,
@@ -58,7 +58,7 @@ export const gameHandler = {
     });
   },
   buy: async (roomId: number, callback: Function) => {
-    let room = await roomService.getRoomById(roomId);
+    const room = await roomService.getRoomById(roomId);
     let user = await userService.getUserByIp(_socket.handshake.address);
 
     if (!room) {
@@ -73,10 +73,10 @@ export const gameHandler = {
     return callback(user);
   },
   rollDices: async (data: { roomId: number }, callback: Function) => {
-    let dices: number[] = handleDices();
+    const dices: number[] = handleDices();
     let promises: Promise<any>[] = [];
     let room = await roomService.getRoomById(data.roomId);
-    let user = await userService.getUserByIp(_socket.handshake.address);
+    const user = await userService.getUserByIp(_socket.handshake.address);
 
     if (user?.ip_address !== room?.current_user_turn?.ip_address)
       return _socket.emit("error", "This is not your turn");

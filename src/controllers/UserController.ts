@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
+import { v4 as uuidv4 } from "uuid";
 import { UserService } from "../services/UserService";
-import jwt from "jsonwebtoken";
-import * as bcrypt from "bcrypt";
 import { LogErrors } from "../decorators/LogErrors";
 
 export class UserController {
@@ -10,31 +9,26 @@ export class UserController {
   constructor() {
     this.userService = new UserService();
   }
-  // @LogErrors(true)
-  // public async login(req: Request, res: Response): Promise<any> {
-  //   const { username, password } = req.body;
-
-  //   const user = await this.userService.getUserByName(username);
-
-  //   if (!user) {
-  //     return res.status(401).json({ message: "Invalid credentials" });
-  //   }
-  //   const match = await bcrypt.compare(password, user.password);
-
-  //   if (!match) {
-  //     return res.status(401).json({ message: "Invalid credentials" });
-  //   }
-
-  //   const token = jwt.sign({ id: user?.id }, process.env.JWT_SECRET as string, {
-  //     expiresIn: process.env.expiresIn,
-  //   });
-
-  //   res.json({ token, expiresIn: process.env.expiresIn });
-  // }
   @LogErrors(true)
   public async getAllUsers(req: Request, res: Response): Promise<any> {
     const users = await this.userService.getAllUsers();
     res.status(200).json(users);
+  }
+  @LogErrors(true)
+  public async checkUser(req: Request, res: Response) {
+    const userToken = req.cookies.userToken;
+
+    if (!userToken) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const user = await this.userService.getUserByToken(userToken);
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid session" });
+    }
+
+    res.status(200).json(user);
   }
   @LogErrors(true)
   public async getUserById(req: Request, res: Response): Promise<void> {
@@ -55,12 +49,21 @@ export class UserController {
       return;
     }
 
+    const userToken = uuidv4();
+
     const newUser = await this.userService.createUser(
       name,
       req.user_socket.id,
-      req.userIp
+      req.userIp,
+      userToken
     );
-    
-    res.status(201).json(newUser);
+
+    res
+      .cookie("userToken", userToken, {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 dias
+      })
+      .status(201)
+      .json(newUser);
   }
 }
