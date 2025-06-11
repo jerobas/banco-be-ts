@@ -14,7 +14,7 @@
     "build": "tsc",
     "lint": "eslint . --fix",
     "prepare": "husky",
-    "start": "node --env-file=.env dist/app.js"
+    "start": "node --env-file=.env app.js"
   },
   "keywords": [
     "nodejs"
