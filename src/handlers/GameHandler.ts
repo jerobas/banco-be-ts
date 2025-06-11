@@ -2,6 +2,8 @@ import { Server, Socket } from "socket.io";
 import { RoomService } from "../services/RoomService";
 import { UserService } from "../services/UserService";
 import { CardService } from "../services/CardService";
+import { chatHandler } from "./ChatHandler";
+import cookie from "cookie";
 
 import {
   handleJail,
@@ -20,13 +22,28 @@ let _io: Server;
 async function updateTurn(roomId: number) {}
 
 export const gameHandler = {
-  start: async (data: {roomId: number}, callback: Function) => {
+  start: async (data: { roomId: number }, callback: Function) => {
+    const rawCookie = _socket.handshake.headers.cookie;
+    const cookies = cookie.parse(rawCookie || "");
+    const userToken = cookies.userToken;
+
+    const user = await userService.getUserByToken(userToken);
     const room = await roomService.getRoomById(data.roomId);
 
     const order = [];
 
     if (!room) {
       return _socket.emit("error", "This room does not exist");
+    }
+
+    console.log(room.owner_ip, user?.ip_address);
+    console.log(room.owner_ip !== user?.ip_address);
+
+    if (room.owner_ip !== user?.ip_address) {
+      chatHandler.systemMessage({
+        roomId: room.id,
+        message: `${user?.name}, you are not the host of the room.`,
+      });
     }
 
     const [d1, d2] = handleDices();
