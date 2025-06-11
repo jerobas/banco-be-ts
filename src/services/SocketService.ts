@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import http from "http";
+import { allowedOrigin } from "../constants";
 
 export class SocketService {
   private io: Server;
@@ -7,7 +8,7 @@ export class SocketService {
   constructor(server: http.Server) {
     this.io = new Server(server, {
       cors: {
-        origin: "*",
+        origin: allowedOrigin,
         credentials: true,
       },
     });

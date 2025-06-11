@@ -15,6 +15,7 @@ import socketMiddleware from "./middleware/socket";
 import timeoutMiddleware from "./middleware/timeout";
 import router from "./routes/router";
 import { SocketService } from "./services/SocketService";
+import { allowedOrigin } from "./constants";
 
 const initializeApp = async () => {
   await initializeDatabase();
@@ -37,7 +38,7 @@ const initializeApp = async () => {
 
   app.use(
     cors({
-      origin: "*",
+      origin: allowedOrigin,
       credentials: true,
     })
   );

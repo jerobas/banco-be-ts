@@ -293,3 +293,5 @@ export const cardsData = [
     is_tradable: false,
   },
 ];
+
+export const allowedOrigin = "http://localhost:3000"
