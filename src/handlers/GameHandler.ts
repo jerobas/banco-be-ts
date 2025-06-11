@@ -19,8 +19,6 @@ const cardService = new CardService();
 let _socket: Socket;
 let _io: Server;
 
-async function updateTurn(roomId: number) {}
-
 export const gameHandler = {
   start: async (data: { roomId: number }, callback: Function) => {
     const rawCookie = _socket.handshake.headers.cookie;
@@ -35,9 +33,6 @@ export const gameHandler = {
     if (!room) {
       return _socket.emit("error", "This room does not exist");
     }
-
-    console.log(room.owner_ip, user?.ip_address);
-    console.log(room.owner_ip !== user?.ip_address);
 
     if (room.owner_ip !== user?.ip_address) {
       chatHandler.systemMessage({
@@ -68,11 +63,14 @@ export const gameHandler = {
 
     const updatedRoom = await roomService.updateRoom(room.id, room);
 
-    return callback({
+    const payload = {
       diceWinners: updatedRoom!.sequence,
       type: updatedRoom!.game_state,
       room: updatedRoom,
-    });
+    };
+
+    _io.to(room.id.toString()).emit("game:start", payload);
+    return callback(payload);
   },
   buy: async (roomId: number, callback: Function) => {
     const room = await roomService.getRoomById(roomId);
@@ -133,10 +131,13 @@ export const gameHandler = {
     room!.turn = nextTurn;
     room = await roomService.updateRoom(room!.id, room!);
 
-    return callback({
+    const payload = {
       users: room?.users,
       currentTurn: room?.current_user_turn,
-    });
+    };
+
+    _io.to(room!.id.toString()).emit("game:rollDices", payload);
+    return callback(payload);
   },
 };
 

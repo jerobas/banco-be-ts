@@ -32,7 +32,7 @@ export class RoomController {
       return res.status(404).json({ message: "You need to add name first" });
     const room = await this.roomService.createRoom(name, password, client);
     req.user_socket.join(room.id.toString());
-    // this.roomsHandler.getRooms();
+    this.roomsHandler.getRooms();
     return res.status(201).json({ message: "Room created successfully", room });
   }
 
@@ -54,7 +54,7 @@ export class RoomController {
       player_state: true,
     });
 
-    // this.roomsHandler.getRooms();
+    this.roomsHandler.getRooms();
     return res.json({ message: "You left the room successfully" });
   }
 
@@ -70,7 +70,7 @@ export class RoomController {
       req.user_socket
     );
     req.user_socket.join(room.id.toString());
-    // await this.roomsHandler.getRooms();
+    await this.roomsHandler.getRooms();
     return;
   }
 

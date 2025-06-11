@@ -1,4 +1,4 @@
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { RoomService } from "../services/RoomService";
 import { UserService } from "../services/UserService";
 import { chatHandler } from "./ChatHandler";
@@ -6,11 +6,14 @@ const roomService = new RoomService();
 const userService = new UserService();
 
 let _socket: Socket; //response quem perguntou
+let _io: Server;
 
 export const roomHandler = {
-  getRooms: async (_: any, callback: Function) => {
+  getRooms: async (_: any, callback?: Function) => {
     const rooms = await roomService.getAllRooms();
-    return callback(rooms);
+    _socket.emit("rooms:getRooms", rooms);
+    if (callback) return callback(rooms);
+    return;
   },
   join: async (
     data: { name: string; password: string },
@@ -54,12 +57,13 @@ export const roomHandler = {
       }
     });
     const user = await userService.getUserByIp(room.owner_ip);
-    if (callback)
-      callback({
-        room,
-        board_size: Number(process.env.BOARD_SIZE),
-        owner: user,
-      });
+    const payload = {
+      room,
+      board_size: Number(process.env.BOARD_SIZE),
+      owner: user,
+    };
+    _io.to(room.id.toString()).emit("rooms:updateUserInGameIfReload", payload);
+    if (callback) callback(payload);
     else return;
   },
   setup: async (data: { id: number }, callback: Function) => {
@@ -69,17 +73,22 @@ export const roomHandler = {
     if (!room) {
       return _socket.emit("error", "This room does not exist");
     }
-    return callback({
-      room: room,
+
+    const payload = {
+      room,
       owner: user,
       board_size: Number(process.env.BOARD_SIZE),
       has_password: !!room.password,
-    });
+    };
+
+    _io.to(room.id.toString()).emit("rooms:setup", payload);
+    return callback(payload);
   },
 };
 
-export const startRoomHandler = async (socket: Socket) => {
+export const startRoomHandler = async (socket: Socket, io: Server) => {
   _socket = socket;
+  _io = io;
 
   Object.entries(roomHandler).forEach(([eventName, handlerFn]) => {
     socket.on(`rooms:${eventName}`, (data: any, callback: Function) => {

@@ -19,8 +19,4 @@ export class SocketService {
   public getIO() {
     return this.io;
   }
-
-  public emitToRoom(roomId: string, event: string, data: any) {
-    this.io.to(roomId).emit(event, data);
-  }
 }
