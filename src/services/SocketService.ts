@@ -1,6 +1,5 @@
 import { Server } from "socket.io";
 import http from "http";
-import { allowedOrigin } from "../constants";
 
 export class SocketService {
   private io: Server;
@@ -8,7 +7,10 @@ export class SocketService {
   constructor(server: http.Server) {
     this.io = new Server(server, {
       cors: {
-        origin: allowedOrigin,
+        origin:
+          process.env.ENV == "dev"
+            ? "http://localhost:3000"
+            : process.env.AWS_HOST,
         credentials: true,
       },
     });

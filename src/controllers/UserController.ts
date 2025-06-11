@@ -5,9 +5,11 @@ import { LogErrors } from "../decorators/LogErrors";
 
 export class UserController {
   private readonly userService: UserService;
+  private readonly cookie_name: string;
 
   constructor() {
     this.userService = new UserService();
+    this.cookie_name = process.env.COOKIE_NAME || "lopoly-token";
   }
   @LogErrors(true)
   public async getAllUsers(req: Request, res: Response): Promise<any> {
@@ -16,7 +18,7 @@ export class UserController {
   }
   @LogErrors(true)
   public async checkUser(req: Request, res: Response) {
-    const userToken = req.cookies.userToken;
+    const userToken = req.cookies[this.cookie_name];
 
     if (!userToken) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -59,9 +61,9 @@ export class UserController {
     );
 
     res
-      .cookie("userToken", userToken, {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 dias
+      .cookie(this.cookie_name, userToken, {
+        // httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 30,
       })
       .status(201)
       .json(newUser);
