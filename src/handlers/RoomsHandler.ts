@@ -21,6 +21,9 @@ export const roomHandler = {
 
     if (!user || !room) return callback(false);
 
+    console.log("room!.game_state::", room!.game_state);
+    console.log("room!.password::", room!.password !== data.password);
+
     if (room!.game_state) return callback(false); // if game_state is true (started)
 
     if (room!.limit_of_users == room!.users.length) return callback(false); // if limit is reached
@@ -29,12 +32,20 @@ export const roomHandler = {
     // Check if the user is already in the room
     const userInRoom = room!.users.find((u) => u.id === user!.id);
 
+    console.log("userInRoom::", userInRoom);
+
     if (userInRoom) return callback(false);
 
     room!.users.push(user);
     await roomService.updateRoom(room!.id, room);
 
     _socket.join(room!.id.toString());
+
+    console.log(`${user.name} entrou na sala`);
+    chatHandler.systemMessage({
+      roomId: room.id,
+      message: `${user?.name} entou na sala!`,
+    });
     return callback(true);
   },
   updateUserInGameIfReload: async (
@@ -69,12 +80,12 @@ export const roomHandler = {
       return _socket.emit("error", "This room does not exist");
     }
 
-    if (room.owner_ip !== user?.ip_address) {
-      chatHandler.systemMessage({
-        roomId: room.id,
-        message: `${user?.name} is a cheater!`,
-      });
-    }
+    // if (room.owner_ip !== user?.ip_address) {
+    //   chatHandler.systemMessage({
+    //     roomId: room.id,
+    //     message: `${user?.name} is a cheater!`,
+    //   });
+    // }
     return callback({
       room: room,
       owner: user,
