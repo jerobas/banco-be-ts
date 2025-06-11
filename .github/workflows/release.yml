@@ -55,7 +55,7 @@ jobs:
               else
                 echo "Container 'postgres_db' já existe. Pulando docker-compose up."
               fi
-
+              pm2 update
               npm run build
 
               /home/ubuntu/.nvm/versions/node/v22.9.0/bin/pm2 delete lopoly || true
