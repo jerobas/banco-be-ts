@@ -39,6 +39,7 @@ jobs:
         run: |
           rsync -avz --delete \
            --exclude='src' \
+           --exclude='node_modules' \
            -e "ssh -o StrictHostKeyChecking=no" \
            ./ ubuntu@${{ secrets.AWS_HOST }}:/home/ubuntu/lopoly-server/
 
