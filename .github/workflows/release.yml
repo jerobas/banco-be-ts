@@ -25,14 +25,22 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "rm -rf /home/ubuntu/lopoly-server"
 
+      - name: Use Node.js 22.9.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.9.0
+
+      - name: Install and build locally
+        run: |
+          npm install
+          npm run build
+
       - name: Copy to EC2
         run: |
-          rsync -avz --delete \
-            --exclude node_modules \
-            --rsync-path="mkdir -p /home/ubuntu/lopoly-server && rsync" \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            . ubuntu@${{ secrets.AWS_HOST }}:/home/ubuntu/lopoly-server/
-
+         rsync -avz --delete \
+          -e "ssh -o StrictHostKeyChecking=no" \
+          ./dist/ ubuntu@${{ secrets.AWS_HOST }}:/home/ubuntu/lopoly-server/
+          
       - name: Link persistent .env
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "
@@ -46,7 +54,6 @@ jobs:
               cd /home/ubuntu/lopoly-server
               source /home/ubuntu/.nvm/nvm.sh
               nvm use 22.9.0
-              npm install
 
               # executa docker compose
               if ! docker ps -a --filter "name=postgres_db" --format '{{.Names}}' | grep -q "^postgres_db$"; then
@@ -56,7 +63,6 @@ jobs:
                 echo "Container 'postgres_db' já existe. Pulando docker-compose up."
               fi
               pm2 update
-              npm run build
 
               /home/ubuntu/.nvm/versions/node/v22.9.0/bin/pm2 delete lopoly || true
               /home/ubuntu/.nvm/versions/node/v22.9.0/bin/pm2 start npm --name lopoly -- run start
