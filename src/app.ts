@@ -40,7 +40,7 @@ const initializeApp = async () => {
       origin:
         process.env.ENV == "dev"
           ? "http://localhost:3000"
-          : `${process.env.AWS_HOST}:${process.env.PORT}`,
+          : `${process.env.AWS_HOST}:${process.env.PORT_FE}`,
       credentials: true,
     })
   );
