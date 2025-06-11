@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { RoomService } from "../services/RoomService";
+import cookie from "cookie";
 
 const roomService = new RoomService();
 let _socket: Socket;
@@ -10,9 +11,12 @@ export const chatHandler = {
     data: { roomId: number; message: string },
     callback: Function
   ) => {
+    const rawCookie = _socket.handshake.headers.cookie;
+    const cookies = cookie.parse(rawCookie || "");
+
     const chatMessage = await roomService.saveChatMessage(
       data.roomId,
-      _socket.handshake.address,
+      cookies.userToken,
       data.message
     );
     return callback({ chatMessage, system: false });

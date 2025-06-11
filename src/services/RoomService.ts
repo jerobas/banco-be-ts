@@ -157,7 +157,7 @@ export class RoomService {
 
   public async saveChatMessage(
     roomId: number,
-    userIp: string,
+    userToken: string,
     message: string
   ) {
     const room = await this.roomRepository.findOneBy({ id: roomId });
@@ -166,16 +166,16 @@ export class RoomService {
       throw new Error(`Room with id ${roomId} not found.`);
     }
 
-    const user = await this.userRepository.findOneBy({ ip_address: userIp });
+    const user = await this.userRepository.findOneBy({ user_token: userToken });
 
     if (!user) {
-      throw new Error(`User with ip ${userIp} not found.`);
+      throw new Error(`User not found.`);
     }
 
     const chatMessage = new ChatMessage();
     chatMessage.room = room;
     chatMessage.user = user;
-    chatMessage.user_ip_address = userIp;
+    chatMessage.user_ip_address = user.ip_address;
     chatMessage.message = message;
 
     await this.chatMessageRepository.save(chatMessage);
