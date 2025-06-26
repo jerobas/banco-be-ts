@@ -23,7 +23,7 @@ jobs:
 
       - name: Remove path
         run: |
-          ssh -o StrictHostKeyChecking=no -p 2222 alfred@ec2-15-228-220-157.sa-east-1.compute.amazonaws.com "rm -rf /home/alfred/repos/lopoly-server"
+          ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.JEROBAS_USER }}@${{ secrets.JEROBAS_HOST }} "rm -rf /home/${{ secrets.JEROBAS_USER }}/repos/lopoly-server"
 
       - name: Use Node.js 22.9.0
         uses: actions/setup-node@v4
@@ -42,7 +42,7 @@ jobs:
            --exclude='node_modules' \
            --exclude='tsconfig.json' \
            --exclude='eslint.config.js' \
-           -e "ssh -o StrictHostKeyChecking=no" \
+           -e "ssh -o StrictHostKeyChecking=no" -p 2222\
            ./ ${{ secrets.JEROBAS_USER }}@${{ secrets.JEROBAS_HOST }}:/home/${{ secrets.JEROBAS_USER }}/repos/lopoly-server
 
       # - name: Link persistent .env
@@ -54,7 +54,7 @@ jobs:
       # - name: Run setup and deploy on EC2
       #   shell: bash
       #   run: |
-      #     ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} 'bash -l' << EOF 
+      #     ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} 'bash -l' << EOF
       #         cd /home/ubuntu/lopoly-server
       #         source /home/ubuntu/.nvm/nvm.sh
       #         nvm use 22.9.0
