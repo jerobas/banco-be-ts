@@ -91,7 +91,7 @@ export class RoomService {
 
   private async deleteByOwnerIp(owner_ip: string) {
     const room = await this.roomRepository.findOne({
-      where: { owner_ip: owner_ip },
+      where: { owner_id: owner_ip },
     });
     if (room) {
       await this.roomRepository.softDelete(room.id);
@@ -146,7 +146,7 @@ export class RoomService {
     room.users = room.users.filter((user) => user.ip_address !== ownerIp);
 
     if (room.users.length > 0) {
-      room.owner_ip = room.users[0].ip_address;
+      room.owner_id = room.users[0].ip_address;
     } else {
       await this.roomRepository.softDelete(room.id);
       return;
