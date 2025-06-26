@@ -23,7 +23,7 @@ jobs:
 
       - name: Remove path
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.JEROBAS_USER }}@${{ secrets.JEROBAS_HOST }} "rm -rf /home/${{ secrets.JEROBAS_USER }}/repos/lopoly-server"
+          ssh -o StrictHostKeyChecking=no -p 2222 alfred@ec2-15-228-220-157.sa-east-1.compute.amazonaws.com "rm -rf /home/alfred/repos/lopoly-server"
 
       - name: Use Node.js 22.9.0
         uses: actions/setup-node@v4
