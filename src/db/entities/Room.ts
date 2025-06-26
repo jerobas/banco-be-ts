@@ -29,7 +29,7 @@ export class Room extends BaseEntity {
   turn!: number;
 
   @Column({ type: "varchar", length: 255 })
-  owner_ip!: string;
+  owner_id!: string;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: "current_user_turn" })

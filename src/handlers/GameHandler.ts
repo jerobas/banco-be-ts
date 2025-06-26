@@ -34,7 +34,7 @@ export const gameHandler = {
       return _socket.emit("error", "This room does not exist");
     }
 
-    if (room.owner_ip !== user?.ip_address) {
+    if (room.owner_id !== user?.id.toString()) {
       chatHandler.systemMessage({
         roomId: room.id,
         message: `${user?.name}, you are not the host of the room.`,
@@ -56,7 +56,7 @@ export const gameHandler = {
         if (index == 0) {
           room.current_user_turn = player.user;
         }
-        room.sequence.push(player.user.ip_address);
+        room.sequence.push(player.user.id.toString());
       });
 
     room.game_state = true;
@@ -93,7 +93,7 @@ export const gameHandler = {
     let room = await roomService.getRoomById(data.roomId);
     const user = await userService.getUserByIp(_socket.handshake.address);
 
-    if (user?.ip_address !== room?.current_user_turn?.ip_address)
+    if (user?.user_token !== room?.current_user_turn?.user_token)
       return _socket.emit("error", "This is not your turn");
 
     let nextTurn = room!.turn + 1;

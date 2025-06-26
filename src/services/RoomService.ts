@@ -82,12 +82,12 @@ export class RoomService {
     return;
   }
 
-  public async updateCardOwner(
-    roomId: number,
-    userId: number,
-    userIp: string,
-    cardId: number
-  ) {}
+  // public async updateCardOwner(
+  //   roomId: number,
+  //   userId: number,
+  //   userIp: string,
+  //   cardId: number
+  // ) {}
 
   private async deleteByOwnerIp(owner_ip: string) {
     const room = await this.roomRepository.findOne({
@@ -188,7 +188,7 @@ export class RoomService {
     const room = await this.roomRepository.save({
       name: name,
       password: password,
-      owner_ip: user.ip_address,
+      owner_id: user.id.toString(),
     });
 
     if (!room) {

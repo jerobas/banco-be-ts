@@ -40,7 +40,7 @@ export class RoomController {
   public async leaveRoom(req: Request, res: Response): Promise<any> {
     const { roomId } = req.body;
 
-    const client = await this.userService.getUserByIp(req.userIp);
+    const client = await this.userService.getUserByToken(req.userIp);
 
     if (!client) return res.status(404).json({ message: "User not found" });
 

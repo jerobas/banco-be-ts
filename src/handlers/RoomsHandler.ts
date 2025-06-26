@@ -56,7 +56,7 @@ export const roomHandler = {
         });
       }
     });
-    const user = await userService.getUserByIp(room.owner_ip);
+    const user = await userService.getUserById(Number(room.owner_id));
     const payload = {
       room,
       board_size: Number(process.env.BOARD_SIZE),

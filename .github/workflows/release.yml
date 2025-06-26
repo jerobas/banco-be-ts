@@ -19,11 +19,11 @@ jobs:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
-          ssh-private-key: ${{ secrets.AWS_KEY }}
+          ssh-private-key: ${{ secrets.JEROBAS_KEY }}
 
       - name: Remove path
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "rm -rf /home/ubuntu/lopoly-server"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.JEROBAS_USER }}@${{ secrets.JEROBAS_HOST }} "rm -rf /home/${{ secrets.JEROBAS_USER }}/repos/lopoly-server"
 
       - name: Use Node.js 22.9.0
         uses: actions/setup-node@v4
@@ -40,33 +40,35 @@ jobs:
           rsync -avz --delete \
            --exclude='src' \
            --exclude='node_modules' \
+           --exclude='tsconfig.json' \
+           --exclude='eslint.config.js' \
            -e "ssh -o StrictHostKeyChecking=no" \
-           ./ ubuntu@${{ secrets.AWS_HOST }}:/home/ubuntu/lopoly-server/
+           ./ ${{ secrets.JEROBAS_USER }}@${{ secrets.JEROBAS_HOST }}:/home/${{ secrets.JEROBAS_USER }}/repos/lopoly-server
 
-      - name: Link persistent .env
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} "
-            ln -sf /home/ubuntu/envs/.env.ls /home/ubuntu/lopoly-server/.env
-          "
+      # - name: Link persistent .env
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no ${{ secrets.JEROBAS_USER }}@${{ secrets.JEROBAS_HOST }} "
+      #       ln -sf /home/ubuntu/envs/.env.ls /home/ubuntu/lopoly-server/.env
+      #     "
 
-      - name: Run setup and deploy on EC2
-        shell: bash
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} 'bash -l' << EOF 
-              cd /home/ubuntu/lopoly-server
-              source /home/ubuntu/.nvm/nvm.sh
-              nvm use 22.9.0
-              npm install
+      # - name: Run setup and deploy on EC2
+      #   shell: bash
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_HOST }} 'bash -l' << EOF 
+      #         cd /home/ubuntu/lopoly-server
+      #         source /home/ubuntu/.nvm/nvm.sh
+      #         nvm use 22.9.0
+      #         npm install
 
-              # executa docker compose
-              if ! docker ps -a --filter "name=postgres_db" --format '{{.Names}}' | grep -q "^postgres_db$"; then
-                echo "Container 'postgres_db' não encontrado. Rodando docker-compose up..."
-                docker-compose up -d
-              else
-                echo "Container 'postgres_db' já existe. Pulando docker-compose up."
-              fi
-              pm2 update
+      #         # executa docker compose
+      #         if ! docker ps -a --filter "name=db_lopoly" --format '{{.Names}}' | grep -q "^db_lopoly$"; then
+      #           echo "Container 'db_lopoly' não encontrado. Rodando docker-compose up..."
+      #           docker-compose up -d --compatibility
+      #         else
+      #           echo "Container 'db_lopoly' já existe. Pulando docker-compose up."
+      #         fi
+      #         pm2 update
 
-              /home/ubuntu/.nvm/versions/node/v22.9.0/bin/pm2 delete lopoly || true
-              /home/ubuntu/.nvm/versions/node/v22.9.0/bin/pm2 start npm --name lopoly -- run start
-          EOF
+      #         /home/ubuntu/.nvm/versions/node/v22.9.0/bin/pm2 delete lopoly || true
+      #         /home/ubuntu/.nvm/versions/node/v22.9.0/bin/pm2 start npm --name lopoly -- run start
+      #     EOF
